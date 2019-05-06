@@ -6,6 +6,7 @@ import android.support.annotation.RestrictTo;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+import android.graphics.drawable.Drawable;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
@@ -72,6 +73,7 @@ public class BottomTabsController extends ParentController implements AHBottomNa
 		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
 		lp.addRule(ALIGN_PARENT_BOTTOM);
 		root.addView(bottomTabs, lp);
+        bottomTabs.addSelectedIconsDrawable(loadSelectedIcons());
 		bottomTabs.addItems(createTabs());
         tabsAttacher.attach();
         return root;
@@ -146,6 +148,17 @@ public class BottomTabsController extends ParentController implements AHBottomNa
         return false;
 	}
 
+    private List<Drawable> loadSelectedIcons() {
+        return map(tabs, tab -> {
+            BottomTabOptions options = tab.resolveCurrentOptions().bottomTabOptions;
+            if(options.selectedIcon.hasValue()) {
+                return imageLoader.loadIcon(getActivity(), options.selectedIcon.get());
+            }
+
+            return null;
+        });
+    }
+
 	private List<AHBottomNavigationItem> createTabs() {
 		if (tabs.size() > 5) throw new RuntimeException("Too many tabs!");
         return map(tabs, tab -> {
@@ -180,6 +193,7 @@ public class BottomTabsController extends ParentController implements AHBottomNa
         getCurrentView().setVisibility(View.INVISIBLE);
         bottomTabs.setCurrentItem(newIndex, false);
         getCurrentView().setVisibility(View.VISIBLE);
+        bottomTabs.setSelectedIcon(newIndex);
     }
 
     @NonNull
